@@ -2,17 +2,14 @@
 <template>
 <Head title="Login" />
         <div class="container d-flex flex-column">
-            <div class="row vh-100">
-                <div class="col-sm-10 col-md-8 col-lg-6 mx-auto d-table h-100">
-                    <div class="d-table-cell align-middle">
-
+            <div class="row">
+                <div class="col-sm-10 col-md-8 col-lg-6 mx-auto">
                         <div class="text-center mt-4">
                             <h1 class="h2">Welcome back</h1>
                             <p class="lead">
                                 Sign in to your account to continue
                             </p>
                         </div>
-
                         <div class="card">
                             <div class="card-body">
                                 <div class="m-sm-4">
@@ -39,21 +36,17 @@
                                                 <input class="form-check-input" v-model="remember" type="checkbox" value="remember-me"
                                                     name="remember-me" checked>
                                                 <span class="form-check-label">
-                                                    Remember me next time
+                                                    Remember me
                                                 </span>
                                             </label>
                                         </div>
                                         <div class="text-center mt-3">
                                             <button type="submit" class="me-2 btn btn-lg btn-primary">Sign in</button>
-                                            <Link method="get" href="/signup" class="ms-2 btn btn-lg btn-secondary">Sign Up</Link>
-                                            <!-- <button type="submit" class="btn btn-lg btn-primary">Sign in</button> -->
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-
-                    </div>
                 </div>
             </div>
         </div>
@@ -69,7 +62,7 @@ export default {
     },
     methods: {
         loginUser() {
-            this.$inertia.post('/api/login', {
+            this.$inertia.post('/login', {
                 email: this.email,
                 password: this.password,
                 remember: this.remember,
