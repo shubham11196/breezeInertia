@@ -169,7 +169,7 @@
                     <a class="dropdown-item" href="#"><i class="align-middle me-1" data-feather="help-circle"></i>
                         Help Center</a>
                     <div class="dropdown-divider"></div> -->
-                    <button class="dropdown-item" type="button" @click="logOut" name="logout"> Log Out</button>
+                    <button class="dropdown-item" type="button" @click="logout" name="logout"> Log Out</button>
                 </div>
             </li>
         </ul>
