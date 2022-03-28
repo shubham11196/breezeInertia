@@ -1,67 +1,80 @@
-<script setup>
-import BreezeButton from '@/Components/Button.vue';
-import BreezeCheckbox from '@/Components/Checkbox.vue';
-import BreezeGuestLayout from '@/Layouts/Guest.vue';
-import BreezeInput from '@/Components/Input.vue';
-import BreezeLabel from '@/Components/Label.vue';
-import BreezeValidationErrors from '@/Components/ValidationErrors.vue';
-import { Head, Link, useForm } from '@inertiajs/inertia-vue3';
-
-defineProps({
-    canResetPassword: Boolean,
-    status: String,
-});
-
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false
-});
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
-};
-</script>
 
 <template>
-    <BreezeGuestLayout>
-        <Head title="Log in" />
+<Head title="Login" />
+        <div class="container d-flex flex-column">
+            <div class="row vh-100">
+                <div class="col-sm-10 col-md-8 col-lg-6 mx-auto d-table h-100">
+                    <div class="d-table-cell align-middle">
 
-        <BreezeValidationErrors class="mb-4" />
+                        <div class="text-center mt-4">
+                            <h1 class="h2">Welcome back</h1>
+                            <p class="lead">
+                                Sign in to your account to continue
+                            </p>
+                        </div>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
-            {{ status }}
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="m-sm-4">
+                                    <!-- <div class="text-center">
+                                        <img src="img/avatars/avatar.jpg" alt="Charles Hall"
+                                            class="img-fluid rounded-circle" width="132" height="132" />
+                                    </div> -->
+                                    <form @submit.prevent="loginUser">
+                                        <div class="mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input class="form-control form-control-lg" required="required" v-model="email" type="email" name="email"
+                                                placeholder="Enter your email" />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Password</label>
+                                            <input class="form-control form-control-lg" required="required" v-model="password" type="password" name="password"
+                                                placeholder="Enter your password" />
+                                            <small>
+                                                <Link method="get"  href="/forgot-password">Forgot password?</Link>
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <label class="form-check">
+                                                <input class="form-check-input" v-model="remember" type="checkbox" value="remember-me"
+                                                    name="remember-me" checked>
+                                                <span class="form-check-label">
+                                                    Remember me next time
+                                                </span>
+                                            </label>
+                                        </div>
+                                        <div class="text-center mt-3">
+                                            <button type="submit" class="me-2 btn btn-lg btn-primary">Sign in</button>
+                                            <Link method="get" href="/signup" class="ms-2 btn btn-lg btn-secondary">Sign Up</Link>
+                                            <!-- <button type="submit" class="btn btn-lg btn-primary">Sign in</button> -->
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form @submit.prevent="submit">
-            <div>
-                <BreezeLabel for="email" value="Email" />
-                <BreezeInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autofocus autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <BreezeLabel for="password" value="Password" />
-                <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="current-password" />
-            </div>
-
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <BreezeCheckbox name="remember" v-model:checked="form.remember" />
-                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" href="#" class="underline text-sm text-gray-600 hover:text-gray-900">
-                    Forgot your password?
-                </Link>
-
-                <BreezeButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </BreezeButton>
-            </div>
-        </form>
-    </BreezeGuestLayout>
 </template>
+<script>
+export default {
+    data() {
+        return {
+            email: '',
+            password: '',
+            remember: false,
+        }
+    },
+    methods: {
+        loginUser() {
+            this.$inertia.post('/api/login', {
+                email: this.email,
+                password: this.password,
+                remember: this.remember,
+            });
+        }
+    }
+}
+</script>

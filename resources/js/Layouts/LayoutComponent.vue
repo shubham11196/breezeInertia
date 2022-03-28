@@ -23,7 +23,6 @@ export default {
     components: { SidebarComponent, TopbarComponent, FooterComponent },
     computed: {
         AuthUser() {
-            return true;
             return usePage().props.value.AuthUser
         }
     }

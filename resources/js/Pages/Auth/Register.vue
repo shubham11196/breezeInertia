@@ -1,62 +1,69 @@
-<script setup>
-import BreezeButton from '@/Components/Button.vue';
-import BreezeGuestLayout from '@/Layouts/Guest.vue';
-import BreezeInput from '@/Components/Input.vue';
-import BreezeLabel from '@/Components/Label.vue';
-import BreezeValidationErrors from '@/Components/ValidationErrors.vue';
-import { Head, Link, useForm } from '@inertiajs/inertia-vue3';
-
-const form = useForm({
-    name: '',
-    email: '',
-    password: '',
-    password_confirmation: '',
-    terms: false,
-});
-
-const submit = () => {
-    form.post(route('register'), {
-        onFinish: () => form.reset('password', 'password_confirmation'),
-    });
-};
-</script>
-
 <template>
-    <BreezeGuestLayout>
-        <Head title="Register" />
+<Head title="Signup" />
+    <main class="d-flex w-100">
+		<div class="container d-flex flex-column">
+			<div class="row vh-100">
+				<div class="col-sm-10 col-md-8 col-lg-6 mx-auto d-table h-100">
+					<div class="d-table-cell align-middle">
 
-        <BreezeValidationErrors class="mb-4" />
+						<div class="text-center mt-4">
+							<h1 class="h2">Get started</h1>
+							<p class="lead">
+								Start creating the best possible user experience for you customers.
+							</p>
+						</div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <BreezeLabel for="name" value="Name" />
-                <BreezeInput id="name" type="text" class="mt-1 block w-full" v-model="form.name" required autofocus autocomplete="name" />
-            </div>
+						<div class="card">
+							<div class="card-body">
+								<div class="m-sm-4">
+									<form @submit.prevent="createNewUser">
+										<div class="mb-3">
+											<label class="form-label">Name</label>
+											<input class="form-control form-control-lg" v-model="name" type="text" name="name" placeholder="Enter your name" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Email</label>
+											<input class="form-control form-control-lg" v-model="email" type="email" name="email" placeholder="Enter your email" />
+										</div>
+										<div class="mb-3">
+											<label class="form-label">Password</label>
+											<input class="form-control form-control-lg" v-model="password" type="password" name="password" placeholder="Enter password" />
+										</div>
+										<div class="text-center mt-3">
+											<button type="submit" class="me-2 btn btn-lg btn-primary">Sign up</button>
+											<Link href="/" class="me-2 btn btn-lg btn-secondary">Login</Link>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
 
-            <div class="mt-4">
-                <BreezeLabel for="email" value="Email" />
-                <BreezeInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required autocomplete="username" />
-            </div>
-
-            <div class="mt-4">
-                <BreezeLabel for="password" value="Password" />
-                <BreezeInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required autocomplete="new-password" />
-            </div>
-
-            <div class="mt-4">
-                <BreezeLabel for="password_confirmation" value="Confirm Password" />
-                <BreezeInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required autocomplete="new-password" />
-            </div>
-
-            <div class="flex items-center justify-end mt-4">
-                <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900">
-                    Already registered?
-                </Link>
-
-                <BreezeButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Register
-                </BreezeButton>
-            </div>
-        </form>
-    </BreezeGuestLayout>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
 </template>
+<script>
+
+export default {
+    data() {
+        return {
+            name: '',
+            email: '',
+            password: '',
+        }
+    },
+    methods: {
+        createNewUser() {
+            this.$axios.post('/api/signup', {
+                name: this.name,
+                email: this.email,
+                password: this.password,
+            }).catch((error) => {
+                console.log('error while sign up', error);
+            });
+        }
+    }
+}
+</script>

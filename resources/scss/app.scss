@@ -9,6 +9,9 @@
 // @import "1-variables/app";
 // Bootstrap
 
+@import "./1-variables/app";
+
+
 @import "../../node_modules/bootstrap/scss/bootstrap";
 
 @import "../../node_modules/bootstrap/scss/functions";
@@ -36,7 +39,6 @@
 @import "../../node_modules/bootstrap/scss/helpers";
 @import "../../node_modules/bootstrap/scss/utilities/api";
 
-@import "./1-variables/app";
 // Theme mixins
 @import "./2-mixins/button";
 
@@ -65,13 +67,13 @@
 @import "./4-utilities/cursors";
 
 // 3rd party plugins
-// @import "~jsvectormap/dist/css/jsvectormap";
-// @import "~simplebar/dist/simplebar";
-// @import "~flatpickr/dist/flatpickr";
+@import "../../node_modules/jsvectormap/dist/css/jsvectormap";
+@import "../../node_modules/simplebar/dist/simplebar";
+@import "../../node_modules/flatpickr/dist/flatpickr";
 
 // // 3rd party plugin styles
-// @import "5-vendor/flatpickr";
-// @import "5-vendor/simplebar";
+@import "./5-vendor/flatpickr";
+@import "./5-vendor/simplebar";
 
 
 .has-error {
