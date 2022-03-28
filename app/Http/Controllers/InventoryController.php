@@ -25,7 +25,6 @@ class InventoryController extends Controller
         $supplier_list = Supplier::orderBy('id')->get();
         return Inertia::render('Inventory/InwardEntry', [
             'supplier-list' => $supplier_list,
-            'token' => session()->get('token'),
         ]);
     }
 
@@ -94,14 +93,14 @@ class InventoryController extends Controller
             'items.*.upc_or_sku' => 'required | max:255',
             'items.*.frame_number' => 'nullable',
             'items.*.short_name' => 'nullable',
-            'items.*.model' => 'required',
+            'items.*.model' => 'nullable',
             'items.*.color' => 'nullable',
-            'items.*.size' => 'required',
+            'items.*.size' => 'nullable',
             'items.*.description' => 'nullable',
             'items.*.description_on_box' => 'nullable',
             'items.*.marin_code' => 'nullable',
             'items.*.color_of_barcode' => 'nullable',
-            'items.*.type' => 'required',
+            'items.*.type' => 'nullable',
             'items.*.insera_code' => 'nullable',
             'items.*.fork' => 'nullable',
             'items.*.grn_number' => 'required',
@@ -135,7 +134,7 @@ class InventoryController extends Controller
             ]);
         }
 
-        return redirect('/inventory/inward-entry')->with("success", "Added Inward Entry");
+        return response([], 204);
     }
 
     /**
@@ -159,17 +158,17 @@ class InventoryController extends Controller
             'items.*.upc_or_sku' => 'required',
             'items.*.short_name' => 'nullable',
             'items.*.boe_number' => 'nullable',
-            'items.*.model' => 'required',
+            'items.*.model' => 'nullable',
             'items.*.color' => 'nullable',
-            'items.*.size' => 'required',
+            'items.*.size' => 'nullable',
             'items.*.description' => 'nullable',
             'items.*.description_on_box' => 'nullable',
             'items.*.marin_code' => 'nullable',
             'items.*.color_of_barcode' => 'nullable',
-            'items.*.type' => 'required',
+            'items.*.type' => 'nullable',
             'items.*.insera_code' => 'nullable',
             'items.*.fork' => 'nullable',
-            'items.*.grn_number' => 'nullable',
+            'items.*.grn_number' => 'required',
         ]);
         $outward_entry = OutwardEntry::create([
             'dispatch_date_time' => $request->dispatch_date_time,
@@ -203,6 +202,6 @@ class InventoryController extends Controller
             ]);
         }
 
-        return redirect('/inventory/outward-entry')->with("success", "Added Outward Entry");
+        return response([], 204);
     }
 }
