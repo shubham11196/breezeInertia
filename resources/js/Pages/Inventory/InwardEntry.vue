@@ -1,5 +1,5 @@
 <template>
-    <!-- <Head :title="'Inward Entry'"/> -->
+    <Head :title="'Inward Entry'"/>
      <div class="container-fluid p-0">
         <div class="mb-3">
             <h1 class="h3 d-inline align-middle">Inward Entry</h1>
@@ -17,7 +17,7 @@
                                 <div class="row">
                                     <div class="col-md-12 d-md-flex">
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">Date of Inbound</label>
+                                            <label class="form-label">Date of Inbound<span class="text-danger">*</span></label>
                                             <Datepicker
                                                 :is24="false"
                                                 format="dd-MM-yyyy"
@@ -27,25 +27,29 @@
                                                 auto-apply
                                                 v-model="date_of_inbound"
                                             ></Datepicker>
+                                            <span v-if="v$.date_of_inbound.$error" class="text-danger">Date of Inbound field required</span>
                                         </div>
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">Import Invoice Number</label>
+                                            <label class="form-label">Import Invoice Number<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" v-model="import_invoice_number" placeholder="Import Invoice Number">
+                                             <span v-if="v$.import_invoice_number.$error" class="text-danger">Import Invoice Number field required</span>
                                         </div>
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">Container Number</label>
+                                            <label class="form-label">Container Number<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" v-model="container_number" placeholder="Container Number">
+                                             <span v-if="v$.container_number.$error" class="text-danger">Container Number field required</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 d-md-flex">
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">BOE Number</label>
+                                            <label class="form-label">BOE Number<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" v-model="boe_number" placeholder="BOE Number">
+                                            <span v-if="v$.boe_number.$error" class="text-danger">BOE Number field required</span>
                                         </div>
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">Supplier</label>
+                                            <label class="form-label">Supplier<span class="text-danger">*</span></label>
                                             <select
                                                 id="select-supplier"
                                                 v-model="supplier"
@@ -62,10 +66,12 @@
                                                     {{ option.name }}
                                                 </option>
                                             </select>
+                                            <span v-if="v$.supplier.$error" class="text-danger">Supplier field required</span>
                                         </div>
                                         <div class="col-12 col-md-4 mb-2 pe-2">
-                                            <label class="form-label">Location</label>
-                                            <input type="text" class="form-control" required="required" v-model="location" placeholder="Location">
+                                            <label class="form-label">Location<span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control"  v-model="location" placeholder="Location">
+                                            <span v-if="v$.supplier.$error" class="text-danger">Location field required</span>
                                         </div>
                                     </div>
                                 </div>
@@ -78,12 +84,13 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <template :key="key" v-for="(each, key) in inwardEntries">
+                            <template :key="each.id" v-for="(each) in inwardEntries">
                                 <inward-entry-items
                                     :item="each"
                                     :entries="inwardEntries"
                                     @item-added="itemAdded"
                                     @sku-update="skuUpdate"
+                                    @remove-item="removeNewItem(each.id)"
                                 />
                             </template>
                              <div class="card-footer">
@@ -95,7 +102,6 @@
                                             @click="addNewItem"
                                             > + Add Item
                                         </button>
-                                        <button class="btn btn-danger me-3 float-end" type="button" v-if="inwardEntries.length" @click="removeNewItem">Remove Item</button>
                                     </div>
                                 </div>
                             </div>
@@ -111,25 +117,20 @@
                 </div>
             </div>
         </form>
-<div class="modal fade" id="myModal"  tabindex="-1" aria-labelledby="myModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-body text-center" >
-       <h3 class="text-success mt-2 mb-2">{{ $attrs.flash.success}}</h3>
-       <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
     </div>
 </template>
 <script>
 import InwardEntryItems from './InwardEntryItems.vue';
+import { email, numeric, required, helpers } from '@vuelidate/validators';
+import { useVuelidate } from '@vuelidate/core';
 export default {
     components: {
         InwardEntryItems,
     },
-    // props: ['supplierList'],
+    props: ['supplierList'],
+    setup() {
+		return {v$: useVuelidate({ $scope: false })};
+	},
     data() {
         return {
             inwardEntries: [],
@@ -142,26 +143,36 @@ export default {
             location: '',
         }
     },
-     mounted(){
-        this.showMessage();
-    },
+    validations() {
+        return {
+            date_of_inbound: { required },
+            import_invoice_number: { required },
+            container_number: { required },
+            boe_number: { required },
+            supplier: { required },
+            location: { required },
+        };
+	},
     methods: {
-      showMessage(){
-        if(this.$attrs.flash.success) {
-             this.$bootstrap.Modal.getOrCreateInstance(document.getElementById('myModal')).show();
-        }
-        },
         addNewItem() {
+            var increment = false;
+            let array = this.inwardEntries.filter(node => {
+                if(node.id === this.inwardEntries.length) {
+                    increment = true;
+                }
+                return this.inwardEntries;
+            });
             this.inwardEntries.push({
-                id: this.inwardEntries.length,
+                id: increment ? array.length + 1 : array.length,
             })
         },
         skuUpdate(data) {
             this.inwardEntries[data.id]['upc_or_sku'] = data.upc_or_sku;
             this.$forceUpdate();
         },
-        removeNewItem() {
-            this.inwardEntries.pop()
+        removeNewItem(id) {
+            this.inwardEntries.splice(id, 1);
+            this.$forceUpdate();
         },
         itemAdded(itemData) {
             let getItem = this.savedItems.filter(i => i.id === itemData.id);
@@ -171,19 +182,43 @@ export default {
             this.savedItems.push(itemData);
             this.addNewItem();
         },
-        submitInwardEntry() {
+        resetData() {
+            this.inwardEntries = [];
+            this.date_of_inbound = '';
+            this.import_invoice_number = '';
+            this.container_number = '';
+            this.boe_number = '';
+            this.supplier = '';
+            this.location = '';
+            this.v$.$reset();
+        },
+        async submitInwardEntry() {
+            const result = await this.v$.$validate();
+            if(!result) {
+                this.$swal({
+                    title: 'Error',
+                    text: "Required field can not be empty.",
+                    customClass: 'swal-wide',
+                });
+                return ;
+            }
             if (this.savedItems.length < this.inwardEntries.length) {
                 this.removeNewItem();
             }
-            this.$inertia.post('/api/save-inward-entry', {
-                date_of_inbound: this.$moment(this.date_of_inbound).format('DD-MM-YYYY'),
-                import_invoice_number: this.import_invoice_number,
-                container_number: this.container_number,
-                boe_number: this.boe_number,
-                supplier: this.supplier,
-                location: this.location,
-                items: this.savedItems,
-            })
+            if(result) {
+                this.$axios.post('/api/save-inward-entry',{
+                    date_of_inbound: this.$moment(this.date_of_inbound).format('DD-MM-YYYY'),
+                    import_invoice_number: this.import_invoice_number,
+                    container_number: this.container_number,
+                    boe_number: this.boe_number,
+                    supplier: this.supplier,
+                    location: this.location,
+                    items: this.savedItems,
+                }).then(() => {
+                    this.$swal('Inward entry added');
+                    this.resetData();
+                });
+            }
         },
         setSupplier() {
             this.location = this.supplierList.find(i => i.name === this.supplier).country;

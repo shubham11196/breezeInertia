@@ -3,7 +3,9 @@
      <div class="accordion-item">
          <h2 class="accordion-header" :id="'itemCount' + item.id">
              <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#collapseItem' + item.id" aria-expanded="true" :aria-controls="'collapseItem' + item.id">
-                #{{ item.id + 1 }} Item
+                #{{ item.id }}
+                <span v-if="itemData.frame_number">&nbsp; Frame Number: {{ itemData.frame_number }} </span>
+                <span v-if="itemData.upc_or_sku">&nbsp; / SKU: {{ itemData.upc_or_sku }} </span>
              </button>
          </h2>
          <div :id="'collapseItem' + item.id" :class="['accordion-collapse collapse', showAccordion ? 'show' : '']" :aria-labelledby="'itemCount' + item.id" :data-bs-parent="'#accordionItems' + item.id">
@@ -13,27 +15,31 @@
                          <div class="col-md-12 d-md-flex">
                              <div class="col-12 col-md-6 mb-2 pe-2">
                                  <label class="form-label">Frame Number</label>
-                                 <input type="text" class="form-control" ref="frame_number" required v-model="itemData.frame_number" placeholder="Frame Number" @input="frameSearch">
+                                 <input type="text" class="form-control" ref="frame_number"  v-model="itemData.frame_number" placeholder="Frame Number" @input="frameSearch">
                              </div>
                              <div class="col-12 col-md-6 mb-2 pe-2">
-                                 <label class="form-label">UPC/SKU</label>
-                                 <input type="text" class="form-control" required v-model="itemData.upc_or_sku" placeholder="UPC/SKU" @input="productSearch">
+                                 <label class="form-label">UPC/SKU<span class="text-danger">*</span></label>
+                                 <input type="text" class="form-control" required v-model="itemData.upc_or_sku" :disabled="!itemData.frame_number" placeholder="UPC/SKU" @input="productSearch">
+                                  <span v-if="v$.itemData.upc_or_sku.$error" class="text-danger">SKU/UPC  field required</span>
                              </div>
                          </div>
                      </div>
                      <div class="row">
                          <div class="col-md-12 d-md-flex">
                              <div class="col-12 col-md-4 mb-2 pe-2">
-                                 <label class="form-label">GRN Number</label>
+                                 <label class="form-label">GRN Number<span class="text-danger">*</span></label>
                                  <input type="text" class="form-control" disabled v-model="itemData.grn_number" placeholder="GRN Number">
+                                <span v-if="v$.itemData.grn_number.$error" class="text-danger">GRN number  field required</span>
                              </div>
                              <div class="col-12 col-md-4 mb-2 pe-2">
                                  <label class="form-label">Short Name</label>
                                  <input type="text" class="form-control" disabled v-model="itemData.short_name" placeholder="Short Name">
+
                              </div>
                              <div class="col-12 col-md-4 mb-2 pe-2">
                                 <label class="form-label">BOE Number</label>
                                 <input type="text" class="form-control" disabled v-model="itemData.boe_number" placeholder="BOE Number">
+
                             </div>
                          </div>
                      </div>
@@ -42,10 +48,12 @@
                              <div class="col-md-4 mb-2 pe-2">
                                  <label class="form-label">Marin Code</label>
                                  <input type="text" class="form-control" disabled v-model="itemData.marin_code" placeholder="Marin Code">
+
                              </div>
                              <div class="col-md-4 mb-2 pe-2">
                                  <label class="form-label">Model</label>
                                  <input type="text" class="form-control" disabled v-model="itemData.model" placeholder="Model">
+
                              </div>
                               <div class="col-md-4 mb-2 pe-2">
                                  <label class="form-label">Color of Barcode</label>
@@ -58,6 +66,7 @@
                              <div class="col-12 col-md-4 mb-2 pe-2">
                                  <label class="form-label">Color</label>
                                  <input type="text" class="form-control" disabled v-model="itemData.color" placeholder="Color">
+
                              </div>
                              <div class="col-12 col-md-4 mb-2 pe-2">
                                  <label class="form-label">Size</label>
@@ -66,6 +75,7 @@
                                <div class="col-12 col-md-4 mb-2 pe-2">
                                  <label class="form-label">Type</label>
                                  <input type="text" class="form-control" disabled v-model="itemData.type" placeholder="Type">
+
                              </div>
                          </div>
                      </div>
@@ -74,10 +84,12 @@
                              <div class="col-md-6 mb-2 pe-2">
                                  <label class="form-label">Description</label>
                                  <textarea type="text" class="form-control" disabled v-model="itemData.description" placeholder="Description"></textarea>
+
                              </div>
                               <div class="col-md-6 mb-2 pe-2">
                                  <label class="form-label">Description on Box</label>
                                  <textarea type="text" class="form-control" disabled v-model="itemData.description_on_box" placeholder="Description on Box"></textarea>
+
                              </div>
                          </div>
                      </div>
@@ -86,6 +98,7 @@
                     <div class="col-12 col-md-12 d-md-flex">
                         <div class="mx-auto mt-2">
                             <button class="btn btn-primary pe-3" type="button" @click="saveItem">Save</button>
+                             <button class="btn btn-danger ms-2  float-end" type="button" @click="$emit('removeItem')">Remove Item</button>
                         </div>
                     </div>
                 </div>
@@ -95,9 +108,14 @@
  </div>
 </template>
 <script>
+import { email, numeric, required, helpers } from '@vuelidate/validators';
+import { useVuelidate } from '@vuelidate/core';
 export default {
     props: ['entries', 'item'],
     emits: ['item-added'],
+    setup() {
+		return {v$: useVuelidate()};
+	},
     data() {
         return {
             itemData: {
@@ -121,19 +139,45 @@ export default {
             showAccordion: true,
         }
     },
+    validations() {
+    return {
+        itemData: {
+            upc_or_sku: { required },
+            grn_number: { required },
+        }
+
+    };
+	},
     mounted() {
         this.$nextTick(() => {
             this.$.vnode.el.children[0].children[1].children[0].children[0].children[0].children[0].children[0].children[1].focus();
         })
     },
     methods: {
-        saveItem() {
-            this.showAccordion = false;
-            this.$emit('item-added', this.itemData)
+        frameSearch() {
+			clearTimeout(this.debounce1);
+			this.debounce1 = setTimeout(() => {
+				this.getProductByFrameNumber();
+			}, 600);
+		},
+        async saveItem() {
+            const result = await this.v$.$validate();
+              if(!result) {
+                this.$swal({
+                title: 'Error',
+                text: "Required field can not be empty.",
+                customClass: 'swal-wide',
+             });
+            }
+             if(result) {
+                this.showAccordion = false;
+                this.$emit('item-added', this.itemData)
+            }
+
         },
         productSearch() {
-			clearTimeout(this.debounce);
-			this.debounce = setTimeout(() => {
+			clearTimeout(this.debounce2);
+			this.debounce2 = setTimeout(() => {
 				this.getProductBySKU();
 			}, 1400);
 		},
@@ -161,12 +205,6 @@ export default {
                 this.$emit('sku-update', this.itemData)
             })
         },
-        frameSearch() {
-			clearTimeout(this.debounce);
-			this.debounce = setTimeout(() => {
-				this.getProductByFrameNumber();
-			}, 600);
-		},
         getProductByFrameNumber() {
             this.$axios.post('/api/product-by-frame-number', {
                 search: this.itemData.frame_number,
@@ -188,6 +226,10 @@ export default {
                     this.itemData.insera_code = item.insera_code;
                     this.itemData.fork = item.fork;
 
+                    //Focus on sku number
+                    this.$nextTick(() => {
+                        this.$.vnode.el.children[0].children[1].children[0].children[0].children[0].children[0].children[1].children[1].focus()
+                    })
                     //Found product now hide accordion and add new item
                     this.showAccordion = false;
                     this.$emit('item-added', this.itemData)

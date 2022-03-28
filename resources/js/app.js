@@ -6,7 +6,6 @@ import "./modules/feather";
 import moment from 'moment';
 import { createApp, h } from 'vue';
 import { createInertiaApp, usePage, Link, Head } from '@inertiajs/inertia-vue3';
-import { InertiaProgress } from '@inertiajs/progress';
 import Layout from './Layouts/LayoutComponent.vue';
 import axios from 'axios';
 import VueFeather from 'vue-feather';
@@ -39,4 +38,3 @@ createInertiaApp({
     },
 });
 
-InertiaProgress.init({ color: '#4B5563' });
